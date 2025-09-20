@@ -85,7 +85,7 @@ export const data = [
             <b>object wrappers</b> (Number, String, Boolean, etc.).
           </li>
           <li>
-            <code>typeof null === &quot;object&quot;</code> is a well-known{" "}
+            <code>typeof null === object</code> is a well-known{" "}
             <b>JavaScript quirk</b>.
           </li>
         </ul>
@@ -4356,8 +4356,8 @@ child.addEventListener("click", (e) => {
               to stop the default action.
             </li>
             <li>
-              Does not stop event propagation; it only prevents the
-              browser&apos;s default action.
+              Does not stop event propagation; it only prevents the browsers
+              default action.
             </li>
             <li>
               Useful in forms, links, drag-and-drop operations, and other
@@ -4467,8 +4467,8 @@ console.log(button.dataset.role);   // "admin"`}</code>
           <ul className="list-disc pl-6 space-y-1">
             <li>
               <b>Callbacks:</b> Pass a function as an argument to execute once
-              the asynchronous task completes. Can lead to &quot;callback
-              hell&quot; if nested deeply.
+              the asynchronous task completes. Can lead to callback hell if
+              nested deeply.
             </li>
             <li>
               <b>Promises:</b> Objects representing a future value. Provides{" "}
