@@ -14,7 +14,7 @@ const QnA = () => {
   return (
     <div>
       {data.map((data, index) => (
-        <div key={data.id} className="mb-5">
+        <div key={data.id} className="mb-2 lg:mb-5">
           <div
             className={`p-2 border cursor-pointer flex items-center justify-between relative bg-amber-50 ${
               show === index && "bg-amber-200"
