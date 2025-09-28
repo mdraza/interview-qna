@@ -14,10 +14,10 @@ const QnA = () => {
   return (
     <div>
       {data.map((data, index) => (
-        <div key={data.id} className="mb-2 lg:mb-5">
+        <div key={data.id} className="mb-2 lg:mb-5 border rounded">
           <div
-            className={`p-2 border cursor-pointer flex items-center justify-between relative bg-amber-50 ${
-              show === index && "bg-amber-200"
+            className={`p-2 cursor-pointer flex items-center justify-between relative bg-amber-50 ${
+              show === index && "bg-amber-200 rounded-b-none"
             } text-md rounded text-slate-950 ${
               data.important && "border-red-600"
             }`}
@@ -26,7 +26,7 @@ const QnA = () => {
             <h2
               className={`font-medium rounded p-3 ${
                 data.important && "text-red-600"
-              }`}
+              } ${show === index && "font-semibold"}`}
             >
               {data.title}{" "}
             </h2>
@@ -49,7 +49,7 @@ const QnA = () => {
             </div>
           </div>
           {show === index && (
-            <div className="p-3 border bg-amber-100 rounded mt-[0.3px]">
+            <div className="p-3 bg-amber-100 rounded mt-[0.3px]">
               {data.content}
             </div>
           )}

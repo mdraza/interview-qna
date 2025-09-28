@@ -3150,8 +3150,8 @@ function App() {
           🔹 Data Fetching with Suspense (Concurrent Mode)
         </h3>
         <p>
-          React's upcoming features allow using <code>Suspense</code> for data
-          fetching. The component “suspends” rendering until data is ready.
+          React&apos;s upcoming features allow using <code>Suspense</code> for
+          data fetching. The component “suspends” rendering until data is ready.
         </p>
         <pre className="bg-gray-100 p-2 rounded-md mt-1 overflow-x-auto">{`const resource = fetchProfile(); // returns a resource with .read() method
 
