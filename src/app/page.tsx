@@ -1,13 +1,14 @@
 import React from "react";
-import QnA from "./_components/QnA";
+import Tab from "./_components/Tab";
 
 const page = () => {
   return (
-    <div className="mx-2 lg:max-w-7xl lg:mx-auto my-5 lg:my-10">
-      <h1 className="text-xl lg:text-2xl text-center mb-5 lg:mb-10">
-        JavaScript - Interview Questions and Answers
+    <div className="mx-2 lg:max-w-7xl lg:mx-auto my-5 lg:my-8">
+      <h1 className="text-xl lg:text-2xl text-center mb-5 lg:mb-5">
+        Interview Questions and Answers
       </h1>
-      <QnA />
+      <Tab />
+      {/* <QnA /> */}
     </div>
   );
 };
