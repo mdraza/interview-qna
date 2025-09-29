@@ -1,9 +1,9 @@
 "use client";
 
-import React, { act, useState } from "react";
-import Interview from "./Interview";
+import React, { useState } from "react";
 import QnA from "./QnA";
 import ReactQnA from "./ReactQnA";
+import NextQnA from "./NextQnA";
 
 const tabs = [
   {
@@ -15,6 +15,11 @@ const tabs = [
     id: 2,
     name: "React",
     component: ReactQnA,
+  },
+  {
+    id: 3,
+    name: "Next.js",
+    component: NextQnA,
   },
 ];
 
