@@ -1048,4 +1048,332 @@ export default function Clock(){
       </div>
     ),
   },
+  {
+    id: 31,
+    question: "What is TTFB in Next.js?",
+    answer: (
+      <article className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-sm text-gray-800 space-y-6">
+        <header>
+          <h1 className="text-2xl font-bold">
+            What is TTFB (Time to First Byte)?
+          </h1>
+          <p className="mt-2 text-gray-600">
+            In Next.js (and web performance in general), <strong>TTFB</strong>{" "}
+            stands for <em>Time to First Byte</em>. It measures how long it
+            takes for the browser to receive the first byte of data from the
+            server after making an HTTP request.
+          </p>
+        </header>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">🔹 How TTFB Works</h2>
+          <ol className="list-decimal list-inside space-y-1 text-gray-700">
+            <li>
+              The browser requests a page (for example, <code>/home</code>).
+            </li>
+            <li>The request travels through:</li>
+          </ol>
+          <ul className="list-disc list-inside ml-6 text-gray-700">
+            <li>DNS lookup</li>
+            <li>TCP connection</li>
+            <li>TLS handshake (if HTTPS)</li>
+            <li>Server-side rendering / API processing</li>
+          </ul>
+          <p className="text-gray-700">
+            The server processes the request and starts sending a response.{" "}
+            <strong>TTFB</strong> is the time until the first byte of that
+            response is received by the browser.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">🔹 TTFB in Next.js</h2>
+          <div className="space-y-2 text-gray-700">
+            <p>TTFB in Next.js depends heavily on your rendering strategy:</p>
+            <ul className="list-disc list-inside ml-6">
+              <li>
+                <strong>Static Site Generation (SSG)</strong> — Pages are
+                prebuilt at build time. TTFB is very low because the CDN/server
+                serves static HTML.
+              </li>
+              <li>
+                <strong>Server-Side Rendering (SSR)</strong> — HTML is generated
+                per request. TTFB is higher because it includes data fetching +
+                rendering time.
+              </li>
+              <li>
+                <strong>Incremental Static Regeneration (ISR)</strong> — Similar
+                to SSG but pages can be rebuilt in background. First request
+                after regeneration might be slightly slower.
+              </li>
+              <li>
+                <strong>API Routes / Middleware</strong> — Complex logic, DB
+                queries, or external API calls increase TTFB.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">🔹 Why TTFB Matters</h2>
+          <p className="text-gray-700">
+            High TTFB slows down Largest Contentful Paint (LCP) and overall page
+            load. Google’s Core Web Vitals treat it as an indirect factor
+            affecting SEO and user experience.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold">
+            🔹 How to Improve TTFB in Next.js
+          </h2>
+          <ul className="list-disc list-inside ml-6 text-gray-700 space-y-1">
+            <li>Use Static Generation (SSG / ISR) for most pages.</li>
+            <li>
+              Cache responses at the CDN or edge (Vercel Edge, Cloudflare,
+              Akamai).
+            </li>
+            <li>
+              Optimize server-side code and avoid heavy computations during
+              request handling.
+            </li>
+            <li>
+              Reduce API and database latency (use indexes, efficient queries,
+              connection pooling).
+            </li>
+            <li>
+              Use Edge Functions / Middleware to move logic closer to the user.
+            </li>
+          </ul>
+        </section>
+
+        <section className="space-y-2">
+          <h2 className="text-lg font-semibold">👉 Example</h2>
+          <p className="text-gray-700">
+            If your SSR page takes <strong>500ms</strong> for data fetching and{" "}
+            <strong>200ms</strong> for server rendering, your TTFB ≈{" "}
+            <strong>700ms</strong>. If you serve the same page with SSG on a
+            CDN, TTFB might drop to ≈ <strong>50ms</strong>.
+          </p>
+
+          <pre className="bg-gray-100 p-3 rounded-md text-sm overflow-x-auto">
+            {`// Rough calculation example
+dataFetchTime = 500  // ms
+serverRenderTime = 200 // ms
+TTFB = dataFetchTime + serverRenderTime // ≈ 700 ms
+
+// With SSG on CDN
+TTFB ≈ 50 ms`}
+          </pre>
+        </section>
+
+        <footer className="text-sm text-gray-600">
+          Tip: Measure TTFB using real tools (Chrome DevTools Network tab,
+          WebPageTest, or Lighthouse) and optimize where the biggest gains are —
+          network, server processing, or caching.
+        </footer>
+      </article>
+    ),
+  },
+  {
+    id: 32,
+    question: "What is ISR ? Explain in details.",
+    answer: (
+      <div className="prose lg:prose-xl p-6 max-w-4xl mx-auto bg-white rounded-2xl shadow-md">
+        <h1>What is ISR (Incremental Static Regeneration)?</h1>
+
+        <p>
+          <strong>Incremental Static Regeneration (ISR)</strong> is a Next.js
+          feature that combines the performance of static pages with the ability
+          to keep content fresh by regenerating pages after deployment — either
+          on a timed interval or on-demand. In short: pages are pre-rendered as
+          static HTML, but Next.js can regenerate those static pages
+          incrementally without a full site rebuild and redeploy.
+        </p>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            Why ISR exists (the problem it solves)
+          </summary>
+          <div className="mt-3">
+            <ul>
+              <li>
+                <strong>SSG</strong> (Static Site Generation) is blazingly fast,
+                but updating content requires a full rebuild and redeploy.
+              </li>
+              <li>
+                <strong>SSR</strong> (Server-Side Rendering) provides fresh
+                content on every request but is slower and more expensive at
+                scale.
+              </li>
+              <li>
+                <strong>ISR</strong> is a hybrid: it keeps pages fast (static)
+                while allowing automatic or on-demand updates so content doesn’t
+                go stale.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            How ISR works — concept &amp; typical flow
+          </summary>
+          <div className="mt-3">
+            <p>
+              Pages generated at build time are stored as static HTML + JSON.
+              When a request comes in:
+            </p>
+            <ol className="list-decimal ml-6 mt-2">
+              <li>
+                If the page is <em>still fresh</em> (inside the{" "}
+                <code>revalidate</code> window), Next.js serves the cached
+                static page.
+              </li>
+              <li>
+                If the page is <em>stale</em> (the <code>revalidate</code> time
+                passed), Next.js serves the existing (stale) page{" "}
+                <strong>immediately</strong> and starts regenerating the page in
+                the background. When regeneration finishes the fresh page
+                replaces the cached version for future visitors.
+              </li>
+            </ol>
+            <p className="mt-3 text-sm text-gray-600">
+              Note: You can opt to block the first request until regeneration
+              finishes in special cases, but background regeneration is the
+              default behavior.
+            </p>
+          </div>
+        </details>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            Examples — App Router (newer patterns)
+          </summary>
+          <div className="mt-3">
+            <p>With the App Router you can:</p>
+            <ul className="list-disc ml-6">
+              <li>
+                Use <code>export const revalidate = 3600</code> in a{" "}
+                <code>page.js</code> or <code>layout.js</code> to set a
+                route-level revalidate time.
+              </li>
+            </ul>
+            <p className="mt-2">
+              This gives you finer-grained control in the App Router
+              data-fetching model.
+            </p>
+          </div>
+        </details>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            On-demand revalidation (webhooks / manual triggers)
+          </summary>
+          <div className="mt-3">
+            <h4 className="font-semibold">Pages Router</h4>
+            <p>
+              Create an API route that calls{" "}
+              <code>res.revalidate(&apos;/some/path&apos;)</code> (protect it
+              with a secret token). Useful for CMS webhooks that notify your app
+              when content changes.
+            </p>
+
+            <h4 className="font-semibold mt-3">App Router</h4>
+            <p>
+              Use <code>revalidatePath()</code> or <code>revalidateTag()</code>{" "}
+              inside server actions or route handlers to invalidate paths or
+              tags. For example, <code>revalidatePath(&apos;/posts&apos;)</code>{" "}
+              marks that path for regeneration on the next visit.
+            </p>
+          </div>
+        </details>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            Important behaviors &amp; caveats
+          </summary>
+          <div className="mt-3">
+            <ul>
+              <li>
+                <strong>Background regeneration:</strong> by default Next.js
+                serves the stale page and regenerates in the background so users
+                rarely wait for updates.
+              </li>
+              <li>
+                <strong>Revalidate timing is a minimum interval:</strong>{" "}
+                setting a very small interval (e.g., 1s) can cause many
+                regenerations — prefer longer intervals and on-demand
+                invalidation for immediate updates.
+              </li>
+              <li>
+                <strong>Hosting considerations:</strong> ISR requires a platform
+                that supports Next.js runtime (Vercel works out of the box).
+                Pure static hosts won’t support runtime regeneration.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            When to use ISR
+          </summary>
+          <div className="mt-3">
+            <ul>
+              <li>
+                Mostly-static content that updates periodically: blogs,
+                marketing pages, product pages with infrequent price changes.
+              </li>
+              <li>
+                Large sites where rebuilding everything for each change is
+                impractical.
+              </li>
+              <li>
+                Editorial workflows: use on-demand revalidation so editors can
+                publish updates instantly.
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="mt-4 p-4 rounded-lg border border-gray-200">
+          <summary className="cursor-pointer font-semibold">
+            Quick checklist to implement ISR correctly
+          </summary>
+          <div className="mt-3">
+            <ol className="list-decimal ml-6">
+              <li>
+                Decide which pages can be static and how often they should
+                update.
+              </li>
+              <li>
+                Pages Router: use <code>getStaticProps</code> with{" "}
+                <code>revalidate</code>.
+              </li>
+              <li>
+                App Router: use <code>export const revalidate</code>
+              </li>
+              <li>
+                Add on-demand revalidation hooks from your CMS:{" "}
+                <code>res.revalidate()</code> (pages) or{" "}
+                <code>revalidatePath()</code>/<code>revalidateTag()</code>{" "}
+                (app).
+              </li>
+              <li>
+                Test behavior in your deployment environment — hosts may differ
+                slightly.
+              </li>
+            </ol>
+          </div>
+        </details>
+
+        <p className="mt-6 text-sm text-gray-600">
+          Want this as an accordion component you can drop into a docs page
+          (with copy buttons for code blocks)? I can add copy-to-clipboard
+          buttons and a small demo page.
+        </p>
+      </div>
+    ),
+  },
 ];
