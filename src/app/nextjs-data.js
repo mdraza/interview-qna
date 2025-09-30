@@ -224,34 +224,260 @@ export default function RootLayout({children}){
     id: 6,
     question: "What is the difference between SSR, SSG, ISR, and CSR?",
     answer: (
-      <div className="space-y-4 text-gray-700">
-        <p>These are rendering strategies:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            <b>SSR (Server-Side Rendering):</b> Render on request on the server;
-            good for dynamic data and SEO.
-          </li>
-          <li>
-            <b>SSG (Static Site Generation):</b> Pre-render at build time; ideal
-            for stable content and fastest delivery via CDN.
-          </li>
-          <li>
-            <b>ISR (Incremental Static Regeneration):</b> Re-generate static
-            pages after a TTL; combines SSG speed with freshness.
-          </li>
-          <li>
-            <b>CSR (Client-Side Rendering):</b> Render in browser after JS
-            loads; good for highly interactive apps but poorer SEO/TTFB.
-          </li>
-        </ul>
-        <h3 className="font-semibold text-lg">🔹 Example</h3>
-        <pre className="bg-gray-100 p-2 rounded-md">{`// SSG with revalidate (ISR-like)
-export async function getStaticProps(){
-  return { props: { ... }, revalidate: 60 }
+      <div className="space-y-6 text-gray-700 p-4">
+        {/* SSR */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold">1️⃣ SSR (Server-Side Rendering)</h2>
+          <p>
+            <b>Definition:</b> SSR generates the HTML on every request at
+            runtime on the server. This ensures the user always gets fresh,
+            dynamic content.
+          </p>
+          <p>
+            <b>Next.js 14 Implementation (App Router):</b> Use{" "}
+            <code>fetch</code> with <code>{'{ cache: "no-store" }'}</code> or{" "}
+            <code>dynamic=&quot;force-dynamic&quot;</code>.
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`// app/posts/page.js
+export const dynamic = "force-dynamic"; // SSR
+
+export default async function PostsPage() {
+  const posts = await fetch("https://api.example.com/posts", { cache: "no-store" })
+    .then(res => res.json());
+
+  return (
+    <ul>
+      {posts.map(post => <li key={post.id}>{post.title}</li>)}
+    </ul>
+  );
 }`}</pre>
-        <p className="bg-blue-50 p-3 rounded-md border-l-4 border-blue-500">
-          <b>✅ In short:</b> Choose SSR for per-request dynamic needs, SSG for
-          stable content, ISR for balance, CSR for client-heavy interactions.
+          <p>
+            <b>Pros:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Always fresh content.</li>
+            <li>Good for personalized pages.</li>
+            <li>SEO-friendly.</li>
+          </ul>
+          <p>
+            <b>Cons:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Slower than static pages.</li>
+            <li>High server load under traffic spikes.</li>
+          </ul>
+          <p>
+            <b>Use-Cases:</b> Dashboards, user profiles, stock prices, live
+            feeds.
+          </p>
+        </div>
+
+        {/* SSG */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold">2️⃣ SSG (Static Site Generation)</h2>
+          <p>
+            <b>Definition:</b> SSG pre-renders pages at build time. HTML and
+            JSON are generated once and deployed to CDN. Pages load instantly.
+          </p>
+          <p>
+            <b>Next.js 14 Implementation (App Router):</b> Use{" "}
+            <code>generateStaticParams</code> for dynamic routes and default
+            caching.
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`// app/blog/[slug]/page.js
+export async function generateStaticParams() {
+  const posts = await fetch("https://api.example.com/posts").then(res => res.json());
+  return posts.map(post => ({ slug: post.slug }));
+}
+
+export default async function BlogPost({ params }) {
+  const post = await fetch(\`https://api.example.com/posts/\${params.slug}\`)
+    .then(res => res.json());
+  return <h1>{post.title}</h1>;
+}`}</pre>
+          <p>
+            <b>Pros:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Super fast (served from CDN).</li>
+            <li>SEO-friendly.</li>
+            <li>Very low server load.</li>
+          </ul>
+          <p>
+            <b>Cons:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Content can become stale.</li>
+            <li>Not ideal for highly dynamic/personalized data.</li>
+          </ul>
+          <p>
+            <b>Use-Cases:</b> Blogs, marketing pages, documentation, portfolio
+            sites.
+          </p>
+        </div>
+
+        {/* ISR */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold">
+            3️⃣ ISR (Incremental Static Regeneration)
+          </h2>
+          <p>
+            <b>Definition:</b> ISR is a hybrid: pages are statically generated
+            at build time but can be revalidated periodically without rebuilding
+            the whole site.
+          </p>
+          <p>
+            <b>Next.js 14 Implementation (App Router):</b>
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`// app/blog/[slug]/page.js
+export const revalidate = 60; // Rebuild page every 60 seconds
+
+export default async function BlogPost({ params }) {
+  const post = await fetch(\`https://api.example.com/posts/\${params.slug}\`, {
+    next: { revalidate: 60 },
+  }).then(res => res.json());
+
+  return <h1>{post.title}</h1>;
+}`}</pre>
+          <p>
+            <b>Pros:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Combines speed of SSG + freshness of SSR.</li>
+            <li>Low server load, but content stays up-to-date.</li>
+          </ul>
+          <p>
+            <b>Cons:</b> Slight delay when rebuilding first time after cache
+            expires.
+          </p>
+          <p>
+            <b>Use-Cases:</b> News sites, blogs with frequent updates, product
+            pages that rarely change.
+          </p>
+        </div>
+
+        {/* CSR */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold">4️⃣ CSR (Client-Side Rendering)</h2>
+          <p>
+            <b>Definition:</b> CSR renders content entirely in the browser after
+            fetching data from APIs. HTML sent initially is minimal; React
+            builds the UI in the client.
+          </p>
+          <p>
+            <b>Next.js 14 Implementation (Client Component):</b>
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`"use client";
+
+import { useEffect, useState } from "react";
+
+export default function Posts() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    fetch("https://api.example.com/posts")
+      .then(res => res.json())
+      .then(data => setPosts(data));
+  }, []);
+
+  return (
+    <ul>
+      {posts.map(post => <li key={post.id}>{post.title}</li>)}
+    </ul>
+  );
+}`}</pre>
+          <p>
+            <b>Pros:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Can easily handle user-specific data.</li>
+            <li>Less server-side computation.</li>
+          </ul>
+          <p>
+            <b>Cons:</b>
+          </p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Not SEO-friendly (unless hydrated with SSR/SSG).</li>
+            <li>Slower initial page load.</li>
+          </ul>
+          <p>
+            <b>Use-Cases:</b> Dashboards, user-specific content, highly
+            interactive apps.
+          </p>
+        </div>
+
+        {/* Comparison Table */}
+        <div className="overflow-x-auto">
+          <h2 className="text-xl font-bold">
+            ✅ Comparison Table (Next.js 14+)
+          </h2>
+          <table className="min-w-full border border-gray-300 text-left">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-3 py-2 border">Feature</th>
+                <th className="px-3 py-2 border">SSR</th>
+                <th className="px-3 py-2 border">SSG</th>
+                <th className="px-3 py-2 border">ISR</th>
+                <th className="px-3 py-2 border">CSR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border">
+                <td className="px-3 py-2 border">Rendered</td>
+                <td className="px-3 py-2 border">On every request</td>
+                <td className="px-3 py-2 border">At build time</td>
+                <td className="px-3 py-2 border">At build + revalidated</td>
+                <td className="px-3 py-2 border">In browser</td>
+              </tr>
+              <tr className="border">
+                <td className="px-3 py-2 border">Freshness</td>
+                <td className="px-3 py-2 border">Always fresh</td>
+                <td className="px-3 py-2 border">Build-time static</td>
+                <td className="px-3 py-2 border">Updated on revalidate</td>
+                <td className="px-3 py-2 border">On client fetch</td>
+              </tr>
+              <tr className="border">
+                <td className="px-3 py-2 border">Speed</td>
+                <td className="px-3 py-2 border">Medium</td>
+                <td className="px-3 py-2 border">Very fast</td>
+                <td className="px-3 py-2 border">Fast</td>
+                <td className="px-3 py-2 border">Slow initial</td>
+              </tr>
+              <tr className="border">
+                <td className="px-3 py-2 border">SEO Friendly</td>
+                <td className="px-3 py-2 border">Yes</td>
+                <td className="px-3 py-2 border">Yes</td>
+                <td className="px-3 py-2 border">Yes</td>
+                <td className="px-3 py-2 border">Limited</td>
+              </tr>
+              <tr className="border">
+                <td className="px-3 py-2 border">Server Load</td>
+                <td className="px-3 py-2 border">High</td>
+                <td className="px-3 py-2 border">Low</td>
+                <td className="px-3 py-2 border">Low-medium</td>
+                <td className="px-3 py-2 border">Low</td>
+              </tr>
+              <tr className="border">
+                <td className="px-3 py-2 border">Use Case</td>
+                <td className="px-3 py-2 border">Dashboards, dynamic pages</td>
+                <td className="px-3 py-2 border">Blogs, marketing pages</td>
+                <td className="px-3 py-2 border">News, e-commerce</td>
+                <td className="px-3 py-2 border">User apps, dashboards</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p className="bg-blue-50 p-3 rounded-md border-l-4 border-blue-500 mt-4">
+          💡 <b>Key Takeaways for Next.js 14+:</b>
+          <br />
+          SSR → dynamic & SEO-friendly, but slower.
+          <br />
+          SSG → static & super fast, best for public content.
+          <br />
+          ISR → best of both worlds, static but can refresh.
+          <br />
+          CSR → best for highly interactive, user-specific content.
         </p>
       </div>
     ),
@@ -333,35 +559,116 @@ export async function GET(request){
     question:
       "Explain the new Data Fetching model in Next.js 14 (using fetch, revalidate, cache options).",
     answer: (
-      <div className="space-y-4 text-gray-700">
-        <p>
-          Next.js 14 continues the App Router&lsquo;s approach where{" "}
-          <b>native fetch</b> is used for server-side data fetching with options
-          like <code>cache</code> and <code>revalidate</code> to control caching
-          behavior.
-        </p>
-        <h3 className="font-semibold text-lg">🔹 Options</h3>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            <code>cache: &lsquo;force-cache&lsquo;</code> — Use cached response
-            (SSG behavior).
-          </li>
-          <li>
-            <code>cache: &lsquo;no-store&lsquo;</code> — Always fetch fresh data
-            (SSR behavior).
-          </li>
-          <li>
-            <code>revalidate: seconds</code> — Stale-while-revalidate style
-            regeneration.
-          </li>
-        </ul>
-        <h3 className="font-semibold text-lg">🔹 Example</h3>
-        <pre className="bg-gray-100 p-2 rounded-md">{`const res = await fetch('https://api.example.com/data', { next: { revalidate: 60 } })
-const data = await res.json()`}</pre>
-        <p className="bg-blue-50 p-3 rounded-md border-l-4 border-blue-500">
-          <b>✅ In short:</b> Use fetch with <code>next</code> options to
-          declaratively control caching and revalidation on server components.
-        </p>
+      <div className="space-y-6 p-4 text-gray-700">
+        <h1 className="text-2xl font-bold">
+          Next.js 14+ Data Fetching Strategies
+        </h1>
+
+        {/* SSR */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">
+            1️⃣ SSR (Server-Side Rendering)
+          </h2>
+          <p>
+            Fetch fresh data on every request using{" "}
+            <code>cache: &quot;no-store&quot;</code> and{" "}
+            <code>dynamic=&quot;force-dynamic&quot;</code>.
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`// app/dashboard/page.js
+export const dynamic = "force-dynamic";
+
+export default async function Dashboard() {
+  const data = await fetch("https://api.example.com/user-stats", {
+    cache: "no-store",
+  }).then(res => res.json());
+
+  return <div>{JSON.stringify(data)}</div>;
+}`}</pre>
+        </div>
+
+        {/* SSG */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">
+            2️⃣ SSG (Static Site Generation)
+          </h2>
+          <p>Pre-render pages at build time using default caching.</p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`// app/blog/[slug]/page.js
+export async function generateStaticParams() {
+  const posts = await fetch("https://api.example.com/posts").then(res => res.json());
+  return posts.map(post => ({ slug: post.slug }));
+}
+
+export default async function BlogPost({ params }) {
+  const post = await fetch(\`https://api.example.com/posts/\${params.slug}\`).then(res => res.json());
+  return <h1>{post.title}</h1>;
+}`}</pre>
+        </div>
+
+        {/* ISR */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">
+            3️⃣ ISR (Incremental Static Regeneration)
+          </h2>
+          <p>
+            Combine SSG speed with periodic updates using{" "}
+            <code>next: &#123; revalidate: 60 &#125;</code>.
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`// app/blog/[slug]/page.js
+export const revalidate = 60;
+
+export default async function BlogPost({ params }) {
+  const post = await fetch(\`https://api.example.com/posts/\${params.slug}\`, {
+    next: { revalidate: 60 },
+  }).then(res => res.json());
+
+  return <h1>{post.title}</h1>;
+}`}</pre>
+        </div>
+
+        {/* CSR */}
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">
+            4️⃣ CSR (Client-Side Rendering)
+          </h2>
+          <p>
+            Fetch data in the browser after page load for interactive or
+            user-specific content.
+          </p>
+          <pre className="bg-gray-100 p-2 rounded-md overflow-x-auto">{`"use client";
+
+import { useEffect, useState } from "react";
+
+export default function Posts() {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    fetch("https://jsonplaceholder.typicode.com/posts?_limit=5")
+      .then(res => res.json())
+      .then(data => setPosts(data));
+  }, []);
+
+  return (
+    <ul>
+      {posts.map(post => <li key={post.id}>{post.title}</li>)}
+    </ul>
+  );
+}`}</pre>
+        </div>
+
+        {/* Key Takeaways */}
+        <div className="bg-blue-50 p-3 rounded-md border-l-4 border-blue-500">
+          <h3 className="font-semibold">💡 Key Takeaways:</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              SSR → dynamic & SEO-friendly, fetches fresh data on every request.
+            </li>
+            <li>SSG → static & super fast, ideal for public content.</li>
+            <li>ISR → hybrid, static but revalidates periodically.</li>
+            <li>
+              CSR → client-heavy, interactive apps or user-specific content.
+            </li>
+          </ul>
+        </div>
       </div>
     ),
   },
