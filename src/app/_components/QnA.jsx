@@ -3,54 +3,87 @@
 import { useState } from "react";
 import { data } from "../Data";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { CiSquareMinus, CiSquarePlus } from "react-icons/ci";
 
 const QnA = () => {
   const [show, setShow] = useState(null);
+  const [counts, setCounts] = useState(Array(data.length).fill(0)); // one counter per accordion
 
   const handleToggle = (index) => {
     setShow((prev) => (prev === index ? null : index));
   };
 
+  const handleIncrease = (index) => {
+    setCounts(
+      (prev) => prev.map((c, i) => (i === index ? c + 1 : c)) // update only clicked accordion
+    );
+  };
+  const handleDecrese = (index) => {
+    setCounts(
+      (prev) => prev.map((c, i) => (i === index ? c - 1 : c)) // update only clicked accordion
+    );
+  };
+
   return (
     <div>
-      {data.map((data, index) => (
-        <div key={data.id} className="mb-2 lg:mb-5 border rounded">
+      {data.map((item, index) => (
+        <div key={item.id} className="mb-2 lg:mb-5 border rounded">
           <div
-            className={`p-2 cursor-pointer flex items-center justify-between relative bg-amber-50 ${
+            className={`p-2 flex items-center justify-between relative bg-amber-50 ${
               show === index && "bg-amber-200 rounded-b-none"
             } text-md rounded text-slate-950 ${
-              data.important && "border-red-600"
+              item.important && "border-red-600"
             }`}
-            onClick={() => handleToggle(index)}
           >
             <h2
               className={`font-medium rounded p-3 ${
-                data.important && "text-red-600"
+                item.important && "text-red-600"
               } ${show === index && "font-semibold"}`}
             >
-              {data.title}{" "}
+              {item.title}
             </h2>
-            <div className="flex gap-5">
-              {data.namaste && (
+
+            <div className="flex gap-5 items-center">
+              {item.namaste && (
                 <span className="border-1 text-sm border-amber-500 text-amber-700 px-3 py-1 rounded">
                   Refer Namaste JavaScript
                 </span>
               )}
-              {data.important && (
+              {item.important && (
                 <span className="bg-red-500 text-white px-3 py-1 rounded">
                   Important
                 </span>
               )}
-              {show === index ? (
-                <IoIosArrowDown className="text-[25px]" />
-              ) : (
-                <IoIosArrowUp className="text-[25px]" />
-              )}
+
+              {/* Counter */}
+
+              <div className="flex items-center justify-between gap-2">
+                <button onClick={() => handleDecrese(index)}>
+                  <CiSquareMinus className="text-[26px] font-medium cursor-pointer" />
+                </button>
+                <span className="font-semibold">{counts[index]}</span>
+                <button onClick={() => handleIncrease(index)}>
+                  <CiSquarePlus className="text-[26px] font-medium cursor-pointer" />
+                </button>
+              </div>
+
+              {/* Accordion toggle */}
+              <div
+                onClick={() => handleToggle(index)}
+                className="cursor-pointer"
+              >
+                {show === index ? (
+                  <IoIosArrowDown className="text-[25px]" />
+                ) : (
+                  <IoIosArrowUp className="text-[25px]" />
+                )}
+              </div>
             </div>
           </div>
+
           {show === index && (
             <div className="p-3 bg-amber-100 rounded mt-[0.3px]">
-              {data.content}
+              {item.content}
             </div>
           )}
         </div>
