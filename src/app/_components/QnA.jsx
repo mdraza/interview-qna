@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { data } from "../Data";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { CiSquareMinus, CiSquarePlus } from "react-icons/ci";
@@ -8,6 +8,19 @@ import { CiSquareMinus, CiSquarePlus } from "react-icons/ci";
 const QnA = () => {
   const [show, setShow] = useState(null);
   const [counts, setCounts] = useState(Array(data.length).fill(0)); // one counter per accordion
+
+  // ✅ Load from localStorage on mount
+  useEffect(() => {
+    const storedCounts = localStorage.getItem("accordionCounts");
+    if (storedCounts) {
+      setCounts(JSON.parse(storedCounts));
+    }
+  }, []);
+
+  // ✅ Save to localStorage whenever counts change
+  useEffect(() => {
+    localStorage.setItem("accordionCounts", JSON.stringify(counts));
+  }, [counts]);
 
   const handleToggle = (index) => {
     setShow((prev) => (prev === index ? null : index));
@@ -18,9 +31,10 @@ const QnA = () => {
       (prev) => prev.map((c, i) => (i === index ? c + 1 : c)) // update only clicked accordion
     );
   };
-  const handleDecrese = (index) => {
+
+  const handleDecrease = (index) => {
     setCounts(
-      (prev) => prev.map((c, i) => (i === index ? c - 1 : c)) // update only clicked accordion
+      (prev) => prev.map((c, i) => (i === index && c > 0 ? c - 1 : c)) // prevent going below 0
     );
   };
 
@@ -56,9 +70,8 @@ const QnA = () => {
               )}
 
               {/* Counter */}
-
               <div className="flex items-center justify-between gap-2">
-                <button onClick={() => handleDecrese(index)}>
+                <button onClick={() => handleDecrease(index)}>
                   <CiSquareMinus className="text-[26px] font-medium cursor-pointer" />
                 </button>
                 <span className="font-semibold">{counts[index]}</span>
