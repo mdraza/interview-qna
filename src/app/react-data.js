@@ -2043,25 +2043,41 @@ function App() {
           memoizes a functional component. It prevents re-rendering if props
           haven’t changed.
         </p>
-        <pre className="bg-gray-100 p-2 rounded-md mt-1">{`import React from 'react';
+        <pre className="bg-gray-100 p-2 rounded-md mt-1">
+          {`import React, { useState, useMemo } from "react";
 
-const Child = React.memo(({ count }) => {
-  console.log("Child rendered");
-  return <p>Count: {count}</p>;
-});
+function UseMemoExample() {
+  const [number, setNumber] = useState(0);
+  const [count, setCount] = useState(0);
 
-function Parent() {
-  const [count, setCount] = React.useState(0);
-  const [name, setName] = React.useState("Raza");
+  // 🔹 Expensive calculation — will only run when 'number' changes
+  const squaredNumber = useMemo(() => {
+    console.log("Calculating square...");
+    return number * number;
+  }, [number]);
 
   return (
-    <div>
-      <Child count={count} />
-      <button onClick={() => setCount(count + 1)}>Increment Count</button>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
+    <div style={{ padding: 20 }}>
+      <h2>useMemo Example</h2>
+
+      <input
+        type="number"
+        value={number}
+        onChange={(e) => setNumber(Number(e.target.value))}
+      />
+
+      <p>Square: {squaredNumber}</p>
+
+      <button onClick={() => setCount(count + 1)}>
+        Re-render ({count})
+      </button>
     </div>
   );
-}`}</pre>
+}
+
+export default UseMemoExample;`}
+        </pre>
+
         <p>
           ✅ Child will not re-render when <code>name</code> changes because its{" "}
           <code>count</code> prop didn’t change.
